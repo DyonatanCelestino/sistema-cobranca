@@ -1,0 +1,8 @@
+Nome,NF,Emissão,Vencimento,Situação,Valor,Observação
+João Silva,001,01/01/2025,15/01/2025,Pendente,1500.00,Primeira cobrança
+Maria Santos,002,05/01/2025,20/01/2025,Vencido,2300.50,Cliente inadimplente
+Pedro Costa,003,10/01/2025,25/01/2025,Pendente,890.75,Pagamento em atraso
+Ana Oliveira,004,15/01/2025,30/01/2025,Pago,1200.00,Pagamento realizado
+Carlos Ferreira,005,20/01/2025,05/02/2025,Pendente,3400.25,Negociação em andamento
+Lucia Mendes,006,25/01/2025,10/02/2025,Vencido,567.80,Contato urgente necessário
+

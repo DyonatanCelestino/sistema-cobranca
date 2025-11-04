@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Cobrança</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px dashed #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+
+        .upload-section.dragover {
+            border-color: #667eea;
+            background: #e8ecff;
+            transform: scale(1.02);
+        }
+
+        .upload-area {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            margin: 2px;
+        }
+
+        .btn:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        .filters {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .filter-group select {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .data-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.9rem;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pendente {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-pago {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-vencido {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .valor {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+            
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            table {
+                font-size: 0.8rem;
+            }
+            
+            th, td {
+                padding: 8px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💼 Sistema de Cobrança</h1>
+            <p>Gerencie suas cobranças e envie emails automaticamente</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Upload Section -->
+            <div class="upload-section" id="uploadSection">
+                <div class="upload-area">
+                    <div class="upload-icon">📊</div>
+                    <h3>Carregar Planilha de Clientes</h3>
+                    <p>Arraste e solte sua planilha aqui ou clique para selecionar</p>
+                    <p style="font-size: 0.9rem; color: #6c757d; margin-top: 10px;">
+                        Formatos aceitos: Excel (.xlsx, .xls) ou CSV<br>
+                        Colunas obrigatórias: Nome, NF, Emissão, Vencimento, Situação, Valor, Observação
+                    </p>
+                    <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls,.csv">
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                        Selecionar Arquivo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Alert Messages -->
+            <div id="alertContainer"></div>
+
+            <!-- Statistics -->
+            <div id="statsContainer" style="display: none;">
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalClientes">0</div>
+                        <div class="stat-label">Total de Clientes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalPendente">0</div>
+                        <div class="stat-label">Pendentes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalVencido">0</div>
+                        <div class="stat-label">Vencidos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="valorTotal">R$ 0,00</div>
+                        <div class="stat-label">Valor Total</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div id="filtersContainer" style="display: none;">
+                <div class="filters">
+                    <div class="filter-group">
+                        <label>Filtrar por Situação:</label>
+                        <select id="filtroSituacao">
+                            <option value="">Todas</option>
+                            <option value="pendente">Pendente</option>
+                            <option value="pago">Pago</option>
+                            <option value="vencido">Vencido</option>
+                        </select>
+                        
+                        <label>Filtrar por Vencimento:</label>
+                        <select id="filtroVencimento">
+                            <option value="">Todos</option>
+                            <option value="vencidos">Apenas Vencidos</option>
+                        </select>
+                        
+                        <button class="btn" onclick="aplicarFiltros()">Aplicar Filtros</button>
+                        <button class="btn btn-warning" onclick="limparFiltros()">Limpar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <div id="dataContainer" style="display: none;">
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>NF</th>
+                                <th>Emissão</th>
+                                <th>Vencimento</th>
+                                <th>Situação</th>
+                                <th>Valor</th>
+                                <th>Observação</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let dadosOriginais = [];
+        let dadosFiltrados = [];
+
+        // Configurar drag and drop
+        const uploadSection = document.getElementById('uploadSection');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processarArquivo(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                processarArquivo(e.target.files[0]);
+            }
+        });
+
+        function mostrarAlert(mensagem, tipo = 'success') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertClass = tipo === 'success' ? 'alert-success' : 'alert-error';
+            alertContainer.innerHTML = `<div class="alert ${alertClass}">${mensagem}</div>`;
+            
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        function mostrarLoading() {
+            document.getElementById('alertContainer').innerHTML = '<div class="loading">Processando planilha...</div>';
+        }
+
+        async function processarArquivo(arquivo) {
+            mostrarLoading();
+            
+            const formData = new FormData();
+            formData.append('file', arquivo);
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const resultado = await response.json();
+
+                if (resultado.success) {
+                    dadosOriginais = resultado.data;
+                    dadosFiltrados = [...dadosOriginais];
+                    mostrarAlert(resultado.message);
+                    exibirDados();
+                    atualizarEstatisticas();
+                } else {
+                    mostrarAlert(resultado.error, 'error');
+                }
+            } catch (error) {
+                mostrarAlert('Erro ao processar arquivo: ' + error.message, 'error');
+            }
+        }
+
+        function exibirDados() {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+
+            dadosFiltrados.forEach((cliente, index) => {
+                const row = document.createElement('tr');
+                
+                const situacaoClass = cliente.Situação ? cliente.Situação.toLowerCase().replace(' ', '-') : 'pendente';
+                const valorFormatado = formatarMoeda(cliente.Valor);
+                
+                row.innerHTML = `
+                    <td>${cliente.Nome || ''}</td>
+                    <td>${cliente.NF || ''}</td>
+                    <td>${cliente.Emissão || ''}</td>
+                    <td>${cliente.Vencimento || ''}</td>
+                    <td><span class="status-badge status-${situacaoClass}">${cliente.Situação || ''}</span></td>
+                    <td class="valor">${valorFormatado}</td>
+                    <td>${cliente.Observação || ''}</td>
+                    <td>
+                        <button class="btn" onclick="gerarEmail(${index})">📧 Email</button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('dataContainer').style.display = 'block';
+            document.getElementById('filtersContainer').style.display = 'block';
+            document.getElementById('statsContainer').style.display = 'block';
+        }
+
+        function atualizarEstatisticas() {
+            const total = dadosOriginais.length;
+            const pendentes = dadosOriginais.filter(c => c.Situação && c.Situação.toLowerCase().includes('pendente')).length;
+            const vencidos = dadosOriginais.filter(c => c.Situação && c.Situação.toLowerCase().includes('vencido')).length;
+            const valorTotal = dadosOriginais.reduce((sum, c) => sum + (parseFloat(c.Valor) || 0), 0);
+
+            document.getElementById('totalClientes').textContent = total;
+            document.getElementById('totalPendente').textContent = pendentes;
+            document.getElementById('totalVencido').textContent = vencidos;
+            document.getElementById('valorTotal').textContent = formatarMoeda(valorTotal);
+        }
+
+        function formatarMoeda(valor) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(valor || 0);
+        }
+
+        async function gerarEmail(index) {
+            const cliente = dadosFiltrados[index];
+            
+            try {
+                const response = await fetch('/api/gerar-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ cliente })
+                });
+
+                const resultado = await response.json();
+
+                if (resultado.success) {
+                    // Abrir Outlook com o email pré-preenchido
+                    window.location.href = resultado.mailto_link;
+                    mostrarAlert('Email gerado com sucesso! Abrindo Outlook...');
+                } else {
+                    mostrarAlert('Erro ao gerar email: ' + resultado.error, 'error');
+                }
+            } catch (error) {
+                mostrarAlert('Erro ao gerar email: ' + error.message, 'error');
+            }
+        }
+
+        async function aplicarFiltros() {
+            const situacao = document.getElementById('filtroSituacao').value;
+            const vencimento = document.getElementById('filtroVencimento').value;
+
+            try {
+                const response = await fetch('/api/filtrar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        registros: dadosOriginais,
+                        situacao,
+                        vencimento
+                    })
+                });
+
+                const resultado = await response.json();
+
+                if (resultado.success) {
+                    dadosFiltrados = resultado.data;
+                    exibirDados();
+                    mostrarAlert(`Filtro aplicado: ${resultado.total_filtrados} registros encontrados`);
+                } else {
+                    mostrarAlert('Erro ao aplicar filtros: ' + resultado.error, 'error');
+                }
+            } catch (error) {
+                mostrarAlert('Erro ao aplicar filtros: ' + error.message, 'error');
+            }
+        }
+
+        function limparFiltros() {
+            document.getElementById('filtroSituacao').value = '';
+            document.getElementById('filtroVencimento').value = '';
+            dadosFiltrados = [...dadosOriginais];
+            exibirDados();
+            mostrarAlert('Filtros removidos');
+        }
+    </script>
+</body>
+</html>
+
